@@ -664,7 +664,7 @@
                                 Background Overlay Opacity (for text readability)
                                 <span class="opacity-value" id="opacity-value">30%</span>
                             </label>
-                            <input type="range" id="overlay-opacity" min="0" max="100" value="30" onchange="updateOverlayOpacity(this.value)">
+                            <input type="range" id="overlay-opacity" min="0" max="100" value="30" oninput="updateOverlayOpacity(this.value)">
                         </div>
 
                         <div class="background-controls">
@@ -734,6 +734,7 @@
         // Load menu from localStorage or use defaults
         let menuItems = JSON.parse(localStorage.getItem('menuItems')) || defaultMenuItems;
         let cart = {};
+        let currentBackgroundImage = null; // Store the current background image data
         
         // Initialize
         renderMenu();
@@ -832,34 +833,34 @@
 
             const reader = new FileReader();
             reader.onload = function(e) {
-                const imageData = e.target.result;
+                currentBackgroundImage = e.target.result;
                 const preview = document.getElementById('background-preview');
-                preview.style.backgroundImage = `url(${imageData})`;
+                preview.style.backgroundImage = `url(${currentBackgroundImage})`;
                 preview.classList.remove('empty');
-                document.getElementById('preview-text').style.display = 'none';
+                const previewText = document.getElementById('preview-text');
+                if (previewText) {
+                    previewText.style.display = 'none';
+                }
             };
             reader.readAsDataURL(file);
         }
 
         function saveBackgroundSettings() {
-            const preview = document.getElementById('background-preview');
-            const backgroundImage = preview.style.backgroundImage;
-            const opacity = document.getElementById('overlay-opacity').value;
-
-            if (!backgroundImage || backgroundImage === 'none') {
+            if (!currentBackgroundImage) {
                 alert('Please upload an image first');
                 return;
             }
 
-            // Extract the URL from the backgroundImage style
-            const imageUrl = backgroundImage.slice(5, -2); // Remove 'url("' and '")'
+            const opacity = document.getElementById('overlay-opacity').value;
             
-            localStorage.setItem('backgroundImage', imageUrl);
+            // Save to localStorage
+            localStorage.setItem('backgroundImage', currentBackgroundImage);
             localStorage.setItem('overlayOpacity', opacity);
             
-            applyBackgroundSettings(imageUrl, opacity);
+            // Apply the background immediately
+            applyBackgroundSettings(currentBackgroundImage, opacity);
             
-            alert('✅ Background settings saved!');
+            alert('✅ Background settings saved successfully!');
         }
 
         function removeBackground() {
@@ -867,15 +868,28 @@
                 localStorage.removeItem('backgroundImage');
                 localStorage.removeItem('overlayOpacity');
                 
+                // Remove from current page
                 document.body.style.backgroundImage = '';
                 document.body.classList.remove('custom-bg');
                 
+                // Remove overlay style
+                const existingStyle = document.getElementById('overlay-style');
+                if (existingStyle) {
+                    existingStyle.remove();
+                }
+                
+                // Reset preview
                 const preview = document.getElementById('background-preview');
                 preview.style.backgroundImage = '';
                 preview.classList.add('empty');
-                document.getElementById('preview-text').style.display = 'block';
+                const previewText = document.getElementById('preview-text');
+                if (previewText) {
+                    previewText.style.display = 'block';
+                }
                 
-                alert('✅ Background removed!');
+                currentBackgroundImage = null;
+                
+                alert('✅ Background removed successfully!');
             }
         }
 
@@ -883,24 +897,26 @@
             document.getElementById('opacity-value').textContent = value + '%';
         }
 
-        function applyBackgroundSettings(imageUrl, opacity) {
-            document.body.style.backgroundImage = `url(${imageUrl})`;
+        function applyBackgroundSettings(imageData, opacity) {
+            // Apply background image to body
+            document.body.style.backgroundImage = `url(${imageData})`;
             document.body.classList.add('custom-bg');
             
-            // Update the overlay opacity
+            // Update or create the overlay style
             const overlayOpacity = opacity / 100;
-            const style = document.createElement('style');
-            style.id = 'overlay-style';
-            const existingStyle = document.getElementById('overlay-style');
-            if (existingStyle) {
-                existingStyle.remove();
+            let style = document.getElementById('overlay-style');
+            
+            if (!style) {
+                style = document.createElement('style');
+                style.id = 'overlay-style';
+                document.head.appendChild(style);
             }
+            
             style.textContent = `
                 body.custom-bg::before {
                     background: rgba(0, 0, 0, ${overlayOpacity}) !important;
                 }
             `;
-            document.head.appendChild(style);
         }
 
         function loadBackgroundSettings() {
@@ -908,26 +924,32 @@
             const opacity = localStorage.getItem('overlayOpacity') || '30';
             
             if (backgroundImage) {
+                currentBackgroundImage = backgroundImage;
                 applyBackgroundSettings(backgroundImage, opacity);
                 
-                // Update preview in admin panel
-                const preview = document.getElementById('background-preview');
-                if (preview) {
-                    preview.style.backgroundImage = `url(${backgroundImage})`;
-                    preview.classList.remove('empty');
-                    const previewText = document.getElementById('preview-text');
-                    if (previewText) {
-                        previewText.style.display = 'none';
+                // Update preview in admin panel when settings tab is opened
+                setTimeout(() => {
+                    const preview = document.getElementById('background-preview');
+                    if (preview) {
+                        preview.style.backgroundImage = `url(${backgroundImage})`;
+                        preview.classList.remove('empty');
+                        const previewText = document.getElementById('preview-text');
+                        if (previewText) {
+                            previewText.style.display = 'none';
+                        }
                     }
-                }
+                }, 100);
             }
             
             // Update opacity slider
-            const opacitySlider = document.getElementById('overlay-opacity');
-            if (opacitySlider) {
-                opacitySlider.value = opacity;
-                document.getElementById('opacity-value').textContent = opacity + '%';
-            }
+            setTimeout(() => {
+                const opacitySlider = document.getElementById('overlay-opacity');
+                const opacityValue = document.getElementById('opacity-value');
+                if (opacitySlider && opacityValue) {
+                    opacitySlider.value = opacity;
+                    opacityValue.textContent = opacity + '%';
+                }
+            }, 100);
         }
 
         function updateQuantity(itemId, change) {
