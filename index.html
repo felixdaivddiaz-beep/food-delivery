@@ -486,72 +486,51 @@
             margin-bottom: 15px;
         }
 
-        .background-preview {
-            width: 100%;
-            height: 200px;
-            border: 2px dashed #e0e0e0;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .info-box h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .info-box ol {
+            margin-left: 20px;
+            color: #333;
+        }
+
+        .info-box li {
+            margin-bottom: 8px;
+        }
+
+        .info-box code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+            color: #c7254e;
+        }
+
+        .url-input-group {
             margin-bottom: 15px;
-            background-size: cover;
-            background-position: center;
-            position: relative;
-            overflow: hidden;
         }
 
-        .background-preview.empty {
-            background: #fff;
-            color: #999;
-        }
-
-        .background-preview img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: cover;
-        }
-
-        .file-input-wrapper {
-            position: relative;
-            display: inline-block;
+        .url-input-group input {
             width: 100%;
-        }
-
-        .file-input-wrapper input[type="file"] {
-            display: none;
-        }
-
-        .file-input-label {
-            display: block;
             padding: 12px;
-            background: #667eea;
-            color: white;
-            text-align: center;
+            border: 2px solid #e0e0e0;
             border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.3s;
+            font-size: 14px;
         }
 
-        .file-input-label:hover {
-            background: #5568d3;
-        }
-
-        .background-controls {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .background-controls button {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
+        .url-input-group input:focus {
+            outline: none;
+            border-color: #667eea;
         }
 
         .opacity-control {
@@ -574,6 +553,22 @@
             margin-left: 10px;
             color: #667eea;
             font-weight: bold;
+        }
+
+        .background-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .background-controls button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
         @media (max-width: 768px) {
@@ -648,15 +643,19 @@
                     <div class="background-section">
                         <h3>Background Image</h3>
                         
-                        <div id="background-preview" class="background-preview empty">
-                            <span id="preview-text">No background image set</span>
+                        <div class="info-box">
+                            <h4>📝 How to add a background image:</h4>
+                            <ol>
+                                <li>Upload your background image to GitHub in the same folder as <code>index.html</code></li>
+                                <li>Name it something simple like <code>background.jpg</code></li>
+                                <li>Enter the filename below (e.g., <code>background.jpg</code>)</li>
+                                <li>Click "Save Background Settings"</li>
+                            </ol>
                         </div>
 
-                        <div class="file-input-wrapper">
-                            <input type="file" id="background-upload" accept="image/*" onchange="handleBackgroundUpload(event)">
-                            <label for="background-upload" class="file-input-label">
-                                📷 Choose Background Image
-                            </label>
+                        <div class="url-input-group">
+                            <label for="bg-url">Background Image Filename:</label>
+                            <input type="text" id="bg-url" placeholder="background.jpg" value="">
                         </div>
 
                         <div class="opacity-control">
@@ -668,7 +667,7 @@
                         </div>
 
                         <div class="background-controls">
-                            <button class="save-btn" onclick="saveBackgroundSettings()">💾 Save Background</button>
+                            <button class="save-btn" onclick="saveBackgroundSettings()">💾 Save Background Settings</button>
                             <button class="delete-btn" onclick="removeBackground()">🗑️ Remove Background</button>
                         </div>
                     </div>
@@ -734,7 +733,6 @@
         // Load menu from localStorage or use defaults
         let menuItems = JSON.parse(localStorage.getItem('menuItems')) || defaultMenuItems;
         let cart = {};
-        let currentBackgroundImage = null; // Store the current background image data
         
         // Initialize
         renderMenu();
@@ -822,50 +820,28 @@
             alert('✅ Menu changes saved successfully!');
         }
 
-        function handleBackgroundUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            if (!file.type.startsWith('image/')) {
-                alert('Please select an image file');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                currentBackgroundImage = e.target.result;
-                const preview = document.getElementById('background-preview');
-                preview.style.backgroundImage = `url(${currentBackgroundImage})`;
-                preview.classList.remove('empty');
-                const previewText = document.getElementById('preview-text');
-                if (previewText) {
-                    previewText.style.display = 'none';
-                }
-            };
-            reader.readAsDataURL(file);
-        }
-
         function saveBackgroundSettings() {
-            if (!currentBackgroundImage) {
-                alert('Please upload an image first');
+            const bgUrl = document.getElementById('bg-url').value.trim();
+            const opacity = document.getElementById('overlay-opacity').value;
+
+            if (!bgUrl) {
+                alert('Please enter a background image filename');
                 return;
             }
 
-            const opacity = document.getElementById('overlay-opacity').value;
-            
             // Save to localStorage
-            localStorage.setItem('backgroundImage', currentBackgroundImage);
+            localStorage.setItem('backgroundUrl', bgUrl);
             localStorage.setItem('overlayOpacity', opacity);
             
             // Apply the background immediately
-            applyBackgroundSettings(currentBackgroundImage, opacity);
+            applyBackgroundSettings(bgUrl, opacity);
             
             alert('✅ Background settings saved successfully!');
         }
 
         function removeBackground() {
             if (confirm('Are you sure you want to remove the background image?')) {
-                localStorage.removeItem('backgroundImage');
+                localStorage.removeItem('backgroundUrl');
                 localStorage.removeItem('overlayOpacity');
                 
                 // Remove from current page
@@ -878,16 +854,8 @@
                     existingStyle.remove();
                 }
                 
-                // Reset preview
-                const preview = document.getElementById('background-preview');
-                preview.style.backgroundImage = '';
-                preview.classList.add('empty');
-                const previewText = document.getElementById('preview-text');
-                if (previewText) {
-                    previewText.style.display = 'block';
-                }
-                
-                currentBackgroundImage = null;
+                // Reset input
+                document.getElementById('bg-url').value = '';
                 
                 alert('✅ Background removed successfully!');
             }
@@ -897,9 +865,9 @@
             document.getElementById('opacity-value').textContent = value + '%';
         }
 
-        function applyBackgroundSettings(imageData, opacity) {
+        function applyBackgroundSettings(bgUrl, opacity) {
             // Apply background image to body
-            document.body.style.backgroundImage = `url(${imageData})`;
+            document.body.style.backgroundImage = `url(${bgUrl})`;
             document.body.classList.add('custom-bg');
             
             // Update or create the overlay style
@@ -920,23 +888,17 @@
         }
 
         function loadBackgroundSettings() {
-            const backgroundImage = localStorage.getItem('backgroundImage');
+            const backgroundUrl = localStorage.getItem('backgroundUrl');
             const opacity = localStorage.getItem('overlayOpacity') || '30';
             
-            if (backgroundImage) {
-                currentBackgroundImage = backgroundImage;
-                applyBackgroundSettings(backgroundImage, opacity);
+            if (backgroundUrl) {
+                applyBackgroundSettings(backgroundUrl, opacity);
                 
-                // Update preview in admin panel when settings tab is opened
+                // Update input in admin panel
                 setTimeout(() => {
-                    const preview = document.getElementById('background-preview');
-                    if (preview) {
-                        preview.style.backgroundImage = `url(${backgroundImage})`;
-                        preview.classList.remove('empty');
-                        const previewText = document.getElementById('preview-text');
-                        if (previewText) {
-                            previewText.style.display = 'none';
-                        }
+                    const urlInput = document.getElementById('bg-url');
+                    if (urlInput) {
+                        urlInput.value = backgroundUrl;
                     }
                 }, 100);
             }
