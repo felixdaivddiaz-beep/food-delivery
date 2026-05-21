@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chef Felix · Order Form</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f3ead8;
+    --paper: #faf3e2;
+    --ink: #1c1a17;
+    --rust: #b1361e;
+    --muted: #6b5d4a;
+    --line: #1c1a17;
+    --gold: #f6c948;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .sheet {
+    width: 100%;
+    max-width: 540px;
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    padding: 28px 26px 32px;
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+  .meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--ink);
+    margin-bottom: 22px;
+  }
+  .eyebrow {
+    text-align: center;
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    color: var(--rust);
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+  .eyebrow::before, .eyebrow::after { content: '— '; }
+  .eyebrow::after { content: ' —'; }
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+    text-align: center;
+    font-size: 64px;
+    letter-spacing: 0.04em;
+    line-height: 0.9;
+    margin-bottom: 10px;
+  }
+  h1 .small {
+    display: block;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--rust);
+    letter-spacing: 0;
+    margin-bottom: 6px;
+  }
+  .subhead {
+    text-align: center;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 28px;
+  }
+  .section-label {
+    text-align: center;
+    font-size: 10px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--muted);
+    position: relative;
+    margin: 22px 0 14px;
+  }
+  .section-label::before, .section-label::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: calc(50% - 60px);
+    height: 1px;
+    background: var(--ink);
+  }
+  .section-label::before { left: 0; }
+  .section-label::after { right: 0; }
+
+  /* Night cards */
+  .night {
+    border: 2px solid var(--ink);
+    padding: 16px 18px;
+    margin-bottom: 14px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    position: relative;
+  }
+  .night:hover { background: #f5ebd0; }
+  .night.checked { background: #f5ebd0; }
+  .night-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .night-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px;
+  }
+  .box {
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--ink);
+    background: var(--paper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .night.checked .box {
+    background: var(--ink);
+  }
+  .night.checked .box::after {
+    content: '✓';
+    color: var(--paper);
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .night-date {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--rust);
+  }
+  .courses {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    row-gap: 4px;
+    font-size: 13px;
+    padding-left: 34px;
+  }
+  .course-label {
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-top: 2px;
+  }
+
+  /* Party size */
+  .party {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 10px;
+  }
+  .party-option {
+    border: 2px solid var(--ink);
+    padding: 16px 12px;
+    text-align: center;
+    cursor: pointer;
+    background: var(--paper);
+    transition: background 0.15s;
+    user-select: none;
+  }
+  .party-option:hover { background: #f5ebd0; }
+  .party-option.selected {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .party-option .price {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px;
+    line-height: 1;
+    color: var(--rust);
+    margin-bottom: 4px;
+  }
+  .party-option.selected .price { color: var(--gold); }
+  .party-option .label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .party-option .serves {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .party-option.selected .serves { color: rgba(250, 243, 226, 0.7); }
+
+  /* Form fields */
+  .field {
+    margin-bottom: 14px;
+  }
+  .field label {
+    display: block;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .field input, .field textarea {
+    width: 100%;
+    border: none;
+    border-bottom: 1.5px solid var(--ink);
+    background: transparent;
+    padding: 8px 2px;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    color: var(--ink);
+    outline: none;
+  }
+  .field input:focus, .field textarea:focus {
+    border-bottom-color: var(--rust);
+  }
+  .field textarea { resize: vertical; min-height: 50px; }
+
+  /* Total */
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 18px 0;
+    border-top: 1px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+    margin: 22px 0 18px;
+  }
+  .total-row .lbl {
+    font-size: 11px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .total-row .amt {
+    font-family: 'DM Serif Display', serif;
+    font-size: 38px;
+    color: var(--rust);
+  }
+
+  /* Submit */
+  button.submit {
+    width: 100%;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    padding: 18px;
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.05s;
+  }
+  button.submit:hover { background: var(--rust); }
+  button.submit:active { transform: translateY(1px); }
+  button.submit:disabled {
+    background: var(--muted);
+    cursor: not-allowed;
+  }
+
+  /* Status */
+  .status {
+    margin-top: 16px;
+    padding: 14px;
+    font-size: 13px;
+    text-align: center;
+    border: 1.5px solid var(--ink);
+    display: none;
+  }
+  .status.success {
+    display: block;
+    background: #e8f0d8;
+    border-color: #4a6b1e;
+    color: #2d4a0d;
+  }
+  .status.error {
+    display: block;
+    background: #f5dbd6;
+    border-color: var(--rust);
+    color: var(--rust);
+  }
+
+  /* Footer */
+  .foot {
+    margin-top: 24px;
+    padding-top: 14px;
+    border-top: 1px solid var(--ink);
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .foot .right { font-family: 'DM Serif Display', serif; font-style: italic; text-transform: none; letter-spacing: 0; font-size: 13px; color: var(--ink); }
+
+  @media (max-width: 480px) {
+    h1 { font-size: 48px; }
+    .courses { padding-left: 0; }
+  }
+</style>
+</head>
+<body>
+  <div class="sheet">
+    <div class="meta">
+      <span>Memorial Day Supper Club</span>
+      <span>№ 01 · May 23, 2026</span>
+    </div>
+
+    <div class="eyebrow">a three-course homemade meal</div>
+    <h1>
+      <span class="small">Chef</span>
+      Felix
+    </h1>
+    <div class="subhead">Cooked &amp; hand-delivered by a 7<sup>th</sup>-grader on your block</div>
+
+    <form id="orderForm">
+      <div class="section-label">Pick your night(s)</div>
+
+      <!-- Saturday -->
+      <div class="night" data-night="saturday">
+        <input type="checkbox" name="saturday" id="sat" style="display:none">
+        <div class="night-header">
+          <div class="night-title">
+            <span class="box"></span>
+            <span>Saturday</span>
+          </div>
+          <span class="night-date">May 23</span>
+        </div>
+        <div class="courses">
+          <div class="course-label">First</div><div>Frisée salad</div>
+          <div class="course-label">Main</div><div>Chicken Caprese</div>
+          <div class="course-label">Sweet</div><div>Key lime pie</div>
+        </div>
+        <div id="sat-party" style="display:none; margin-top:16px;">
+          <div class="party">
+            <div class="party-option" data-night="saturday" data-size="2">
+              <div class="price">$30</div>
+              <div class="label">For Two</div>
+              <div class="serves">serves 2 · 3 courses</div>
+            </div>
+            <div class="party-option" data-night="saturday" data-size="4">
+              <div class="price">$45</div>
+              <div class="label">For Four</div>
+              <div class="serves">serves 4 · 3 courses</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sunday -->
+      <div class="night" data-night="sunday">
+        <input type="checkbox" name="sunday" id="sun" style="display:none">
+        <div class="night-header">
+          <div class="night-title">
+            <span class="box"></span>
+            <span>Sunday</span>
+          </div>
+          <span class="night-date">May 24</span>
+        </div>
+        <div class="courses">
+          <div class="course-label">First</div><div>Esquites</div>
+          <div class="course-label">Main</div><div>Arroz con Pollo</div>
+          <div class="course-label">Sweet</div><div>Whoopie pies</div>
+        </div>
+        <div id="sun-party" style="display:none; margin-top:16px;">
+          <div class="party">
+            <div class="party-option" data-night="sunday" data-size="2">
+              <div class="price">$30</div>
+              <div class="label">For Two</div>
+              <div class="serves">serves 2 · 3 courses</div>
+            </div>
+            <div class="party-option" data-night="sunday" data-size="4">
+              <div class="price">$45</div>
+              <div class="label">For Four</div>
+              <div class="serves">serves 4 · 3 courses</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">Your Details</div>
+
+      <div class="field">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" required autocomplete="name">
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="address">Delivery Address</label>
+        <textarea id="address" name="address" required autocomplete="street-address" placeholder="Street, apartment if any, city, ZIP"></textarea>
+      </div>
+      <div class="field">
+        <label for="notes">Notes (allergies, etc.)</label>
+        <textarea id="notes" name="notes" placeholder="Optional"></textarea>
+      </div>
+
+      <div class="total-row">
+        <span class="lbl">Total</span>
+        <span class="amt" id="total">$0</span>
+      </div>
+
+      <button type="submit" class="submit" id="submitBtn">Place Order</button>
+      <div class="status" id="status"></div>
+    </form>
+
+    <div class="foot">
+      <span>Delivered 5:30–6:30 pm</span>
+      <span class="right">Felix Diaz · 7th grade</span>
+    </div>
+  </div>
+
+<script>
+  // ============ CONFIGURATION ============
+  // After you deploy your Apps Script (instructions in the email below),
+  // paste the Web App URL between the quotes here:
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxTe2dEJJ38v5OhfYgxPJqrPVZI1b7OzAlvoENGhXWXWHuVQ33Jz2WULuWe0HBHEVpV/exec";
+  // =======================================
+
+  const state = {
+    saturday: { selected: false, size: null },
+    sunday:   { selected: false, size: null },
+  };
+
+  function recalc() {
+    let total = 0;
+    for (const night of ['saturday', 'sunday']) {
+      if (state[night].selected && state[night].size) {
+        total += state[night].size === 2 ? 30 : 45;
+      }
+    }
+    document.getElementById('total').textContent = '$' + total;
+  }
+
+  // Toggle night selection
+  document.querySelectorAll('.night').forEach(card => {
+    const night = card.dataset.night;
+    card.addEventListener('click', (e) => {
+      // Don't toggle if clicking on a party option or its children
+      if (e.target.closest('.party-option') || e.target.closest('.party')) return;
+      state[night].selected = !state[night].selected;
+      card.classList.toggle('checked', state[night].selected);
+      document.getElementById(night === 'saturday' ? 'sat-party' : 'sun-party').style.display = state[night].selected ? 'block' : 'none';
+      if (!state[night].selected) {
+        state[night].size = null;
+        card.querySelectorAll('.party-option').forEach(o => o.classList.remove('selected'));
+      }
+      recalc();
+    });
+  });
+
+  // Party size selection
+  document.querySelectorAll('.party-option').forEach(opt => {
+    opt.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const night = opt.dataset.night;
+      const size = parseInt(opt.dataset.size);
+      state[night].size = size;
+      // Mark selected
+      document.querySelectorAll(`.party-option[data-night="${night}"]`).forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      recalc();
+    });
+  });
+
+  // Submit
+  document.getElementById('orderForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const status = document.getElementById('status');
+    const btn = document.getElementById('submitBtn');
+    status.className = 'status';
+    status.textContent = '';
+
+    // Validate that at least one night is selected with a party size
+    const satOK = state.saturday.selected && state.saturday.size;
+    const sunOK = state.sunday.selected && state.sunday.size;
+    if (!satOK && !sunOK) {
+      status.className = 'status error';
+      status.textContent = 'Please pick at least one night and a party size.';
+      return;
+    }
+    if (state.saturday.selected && !state.saturday.size) {
+      status.className = 'status error';
+      status.textContent = 'Please pick a party size for Saturday.';
+      return;
+    }
+    if (state.sunday.selected && !state.sunday.size) {
+      status.className = 'status error';
+      status.textContent = 'Please pick a party size for Sunday.';
+      return;
+    }
+
+    const payload = {
+      timestamp: new Date().toISOString(),
+      name: document.getElementById('name').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      address: document.getElementById('address').value.trim(),
+      notes: document.getElementById('notes').value.trim(),
+      saturday: state.saturday.selected ? `Yes (for ${state.saturday.size})` : 'No',
+      saturdayMenu: state.saturday.selected ? 'Frisée salad / Chicken Caprese / Key lime pie' : '',
+      saturdayPrice: state.saturday.selected ? (state.saturday.size === 2 ? 30 : 45) : 0,
+      sunday: state.sunday.selected ? `Yes (for ${state.sunday.size})` : 'No',
+      sundayMenu: state.sunday.selected ? 'Esquites / Arroz con Pollo / Whoopie pies' : '',
+      sundayPrice: state.sunday.selected ? (state.sunday.size === 2 ? 30 : 45) : 0,
+      total: (state.saturday.selected ? (state.saturday.size === 2 ? 30 : 45) : 0) +
+             (state.sunday.selected ? (state.sunday.size === 2 ? 30 : 45) : 0),
+    };
+
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+
+    try {
+      if (GOOGLE_SCRIPT_URL === "PASTE_YOUR_APPS_SCRIPT_URL_HERE") {
+        throw new Error("The order form isn't fully set up yet. Please email me directly.");
+      }
+      // Apps Script web apps don't allow custom headers without CORS preflight,
+      // so we send as text/plain (Apps Script reads e.postData.contents).
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload),
+      });
+      status.className = 'status success';
+      status.innerHTML = `Order received! Felix will email you to confirm. Total: <strong>$${payload.total}</strong>`;
+      document.getElementById('orderForm').reset();
+      // Reset state
+      state.saturday = { selected: false, size: null };
+      state.sunday   = { selected: false, size: null };
+      document.querySelectorAll('.night').forEach(n => n.classList.remove('checked'));
+      document.querySelectorAll('.party-option').forEach(o => o.classList.remove('selected'));
+      document.getElementById('sat-party').style.display = 'none';
+      document.getElementById('sun-party').style.display = 'none';
+      recalc();
+    } catch (err) {
+      status.className = 'status error';
+      status.textContent = err.message || 'Something went wrong. Please email Felix directly.';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Place Order';
+    }
+  });
+</script>
+</body>
+</html>
